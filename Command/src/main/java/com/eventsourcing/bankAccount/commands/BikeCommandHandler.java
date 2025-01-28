@@ -47,7 +47,7 @@ public class BikeCommandHandler implements BikeCommandService {
 
 //            final var insert = bikeMongoRepositoryState.insert(document);
         try {
-            mongoService.saveToSecondary(document);
+//            mongoService.saveToSecondary(document);
             mongoService.saveToPrimary(document);
         } catch (Exception e) {
             log.error("Error saving to mongo: {}", e);

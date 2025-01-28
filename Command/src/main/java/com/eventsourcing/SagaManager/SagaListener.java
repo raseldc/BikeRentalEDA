@@ -20,6 +20,7 @@ import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -47,7 +48,8 @@ public class SagaListener implements Projection {
             ack.acknowledge();
             log.info("ack events: {}", Arrays.toString(events));
         } catch (Exception ex) {
-            ack.nack(100);
+            ack.nack(Duration.ofSeconds(100));
+
             log.error("(BankAccountMongoProjection) topic: {}, offset: {}, partition: {}, timestamp: {}", meta.topic(), meta.offset(), meta.partition(), meta.timestamp(), ex);
         }
     }

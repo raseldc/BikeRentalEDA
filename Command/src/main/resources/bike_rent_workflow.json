@@ -1,0 +1,44 @@
+{
+  "name": "bike_rent_workflow",
+  "description": "Workflow to handle bike rent process",
+  "version": 1,
+  "tasks": [
+    {
+      "name": "start_saga",
+      "taskReferenceName": "start_saga",
+      "type": "SIMPLE"
+    },
+    {
+      "name": "update_database",
+      "taskReferenceName": "update_database",
+      "type": "SIMPLE"
+    },
+    {
+      "name": "initiate_query_service",
+      "taskReferenceName": "initiate_query_service",
+      "type": "SIMPLE"
+    },
+    {
+      "name": "consume_query_event",
+      "taskReferenceName": "consume_query_event",
+      "type": "SIMPLE"
+    },
+    {
+      "name": "create_payment_event",
+      "taskReferenceName": "create_payment_event",
+      "type": "SIMPLE"
+    },
+    {
+      "name": "consume_payment_event",
+      "taskReferenceName": "consume_payment_event",
+      "type": "SIMPLE"
+    },
+    {
+      "name": "update_final_database",
+      "taskReferenceName": "update_final_database",
+      "type": "SIMPLE"
+    }
+  ],
+  "outputParameters": {},
+  "schemaVersion": 2
+}
