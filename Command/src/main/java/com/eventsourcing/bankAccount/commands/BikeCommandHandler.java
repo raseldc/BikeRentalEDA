@@ -29,6 +29,8 @@ public class BikeCommandHandler implements BikeCommandService {
     @Autowired
     private MongoService mongoService;
 
+
+
     @Override
     @NewSpan
     @Retry(name = SERVICE_NAME)
@@ -45,9 +47,8 @@ public class BikeCommandHandler implements BikeCommandService {
                 .location(command.location())
                 .build();
 
-//            final var insert = bikeMongoRepositoryState.insert(document);
         try {
-            mongoService.saveToSecondary(document);
+
             mongoService.saveToPrimary(document);
         } catch (Exception e) {
             log.error("Error saving to mongo: {}", e);
@@ -61,9 +62,10 @@ public class BikeCommandHandler implements BikeCommandService {
     @Retry(name = SERVICE_NAME)
     @CircuitBreaker(name = SERVICE_NAME)
     public String handle(@SpanTag("command") RentBikeCommand command) {
-        final var aggregate = new BikeAggregate(command.aggregateID());
+         var aggregate = new BikeAggregate(command.aggregateID());
         aggregate.rentBike(command.bikeId(), command.bikeType(), command.location(), command.startDate(), command.endDate());
-        bikeStatusUpdate(command.bikeId(), command.location());
+
+       // bikeStatusUpdate(command.bikeId(), command.location());
         eventStoreDB.save(aggregate);
 
 
@@ -76,28 +78,26 @@ public class BikeCommandHandler implements BikeCommandService {
     @Retry(name = SERVICE_NAME)
     @CircuitBreaker(name = SERVICE_NAME)
     public String handle(@SpanTag("command") RentBikeStatusPendingCommand command) {
-        final var aggregate = new BikeAggregate(command.aggregateID());
+        var aggregate = new BikeAggregate(command.aggregateID());
         aggregate.rentBike(command.bikeId(), command.bikeType(), command.location(), command.startDate(), command.endDate());
-        bikeStatusUpdate(command.bikeId(), command.location());
+        //bikeStatusUpdate(command.bikeId(), command.location());
         eventStoreDB.save(aggregate);
-
-
-        log.info("(RentBikeCommand) aggregate: {}", aggregate);
+        log.info("(RentBikeCommand) aggregate : {}", aggregate);
         return aggregate.getId();
     }
 
-    public void bikeStatusUpdate(String bikeId, String status) {
-
-
-        final var documentOptional = mongoService.getPrimaryMongoTemplate().find(query(where("bikeId").is(bikeId)), BikeDocumentState.class).stream().findFirst();
-
-        if (documentOptional.isEmpty())
-           return;
-
-        final var document = documentOptional.get();
-        document.setLocation(status);
-        mongoService.getPrimaryMongoTemplate().save(document);
-
-
-    }
+//    public void bikeStatusUpdate(String bikeId, String status) {
+//
+//
+//        final var documentOptional = mongoService.getPrimaryMongoTemplate().find(query(where("bikeId").is(bikeId)), BikeDocumentState.class).stream().findFirst();
+//
+//        if (documentOptional.isEmpty())
+//           return;
+//
+//        final var document = documentOptional.get();
+//        document.setLocation(status);
+//        mongoService.getPrimaryMongoTemplate().save(document);
+//
+//
+//    }
 }

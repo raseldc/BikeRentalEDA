@@ -91,7 +91,7 @@ public class SagaListener implements Projection {
 
     @NewSpan
     private void handlePaymentComplete(@SpanTag("event") BikeRentEvent bikeRentEvent) {
-        log.info("(when) BikeAccountCreatedEvent: {}, aggregateID: {}", bikeRentEvent, bikeRentEvent.getAggregateId());
+        log.info("(when) Bike Payment Complete : {}, aggregateID: {}", bikeRentEvent, bikeRentEvent.getAggregateId());
 
         final var document = BikeRentEvent.builder()
                 .aggregateId(bikeRentEvent.getAggregateId())
@@ -140,7 +140,7 @@ public class SagaListener implements Projection {
     @NewSpan
     private void handlePaymentInitiate(@SpanTag("event") BikeRentEvent event) {
 
-        log.info("(when) BikeAccountCreatedEvent: {}, aggregateID: {}", event, event.getAggregateId());
+        log.info("(when) BIke Rent Payment initiate: {}, aggregateID: {}", event, event.getAggregateId());
 
         final var document = BikeRentEvent.builder()
                 .aggregateId(event.getAggregateId())
