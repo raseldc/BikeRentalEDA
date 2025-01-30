@@ -22,9 +22,12 @@ public class BikeController {
         private final BikeCommandService commandService;
 
         @PostMapping
-        public ResponseEntity<String> createBike(@Valid @RequestBody CreateBikeRequestDTO dto) {
+        public ResponseEntity<String> createBike(@RequestParam("bikeId") String bikeId,
+                                                 @RequestParam("bikeType") String bikeType,
+                                                 @RequestParam("location") String location) {
+               // @Valid @RequestBody CreateBikeRequestDTO dto) {
             final var aggregateID = UUID.randomUUID().toString();
-            final var id = commandService.handle(new CreateBikeCommand(aggregateID, dto.bikeId(), dto.bikeType(), dto.location()));
+            final var id = commandService.handle(new CreateBikeCommand(aggregateID, bikeId, bikeType, location));
             log.info("Created bike id: {}", id);
             return ResponseEntity.status(HttpStatus.CREATED).body(id);
         }
