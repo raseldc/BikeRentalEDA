@@ -1,12 +1,10 @@
 package com.eventsourcing.SagaManager;
 
-import com.eventsourcing.bankAccount.domain.BankAccountAggregate;
 import com.eventsourcing.bankAccount.domain.BikeAggregate;
 import com.eventsourcing.bankAccount.domain.BikeDocumentState;
 import com.eventsourcing.bankAccount.events.*;
 import com.eventsourcing.configuration.MongoService;
 import com.eventsourcing.es.*;
-import com.eventsourcing.mappers.BankAccountMapper;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;

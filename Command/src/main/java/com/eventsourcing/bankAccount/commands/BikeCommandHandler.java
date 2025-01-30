@@ -1,9 +1,7 @@
 package com.eventsourcing.bankAccount.commands;
 
-import com.eventsourcing.bankAccount.domain.BankAccountAggregate;
 import com.eventsourcing.bankAccount.domain.BikeAggregate;
 import com.eventsourcing.bankAccount.domain.BikeDocumentState;
-import com.eventsourcing.bankAccount.repository.BikeMongoRepositoryState;
 import com.eventsourcing.configuration.MongoService;
 import com.eventsourcing.es.EventStoreDB;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -14,9 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.sleuth.annotation.NewSpan;
 import org.springframework.cloud.sleuth.annotation.SpanTag;
 import org.springframework.stereotype.Service;
-
-import static org.springframework.data.mongodb.core.query.Criteria.where;
-import static org.springframework.data.mongodb.core.query.Query.query;
 
 @RequiredArgsConstructor
 @Slf4j

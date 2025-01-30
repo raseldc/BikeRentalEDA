@@ -1,8 +1,5 @@
 package com.eventsourcing.filters;
 
-import com.eventsourcing.bankAccount.exceptions.BankAccountDocumentNotFoundException;
-import com.eventsourcing.bankAccount.exceptions.InvalidAddressException;
-import com.eventsourcing.bankAccount.exceptions.InvalidEmailException;
 import com.eventsourcing.es.exceptions.AggregateNotFoundException;
 import com.eventsourcing.exceptions.InternalServerErrorResponse;
 import com.eventsourcing.exceptions.ExceptionResponseDTO;
@@ -45,19 +42,5 @@ public class GlobalControllerAdvice {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMap);
     }
 
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    @ExceptionHandler({AggregateNotFoundException.class, BankAccountDocumentNotFoundException.class})
-    public ResponseEntity<ExceptionResponseDTO> handleAggregateNotFoundExceptions(AggregateNotFoundException ex) {
-        final var notFoundResponseDTO = new ExceptionResponseDTO(HttpStatus.NOT_FOUND.value(), ex.getMessage(), LocalDateTime.now());
-        log.error("handleAggregateNotFoundExceptions response ex:", ex);
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(notFoundResponseDTO);
-    }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler({InvalidAddressException.class, InvalidEmailException.class})
-    public ResponseEntity<ExceptionResponseDTO> handleInvalidAggregateExceptions(AggregateNotFoundException ex) {
-        final var notFoundResponseDTO = new ExceptionResponseDTO(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), LocalDateTime.now());
-        log.error("handleInvalidAggregateExceptions response ex:", ex);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(notFoundResponseDTO);
-    }
 }

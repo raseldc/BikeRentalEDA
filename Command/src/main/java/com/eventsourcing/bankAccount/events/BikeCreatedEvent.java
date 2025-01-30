@@ -1,6 +1,5 @@
 package com.eventsourcing.bankAccount.events;
 
-import com.eventsourcing.bankAccount.domain.BankAccountAggregate;
 import com.eventsourcing.bankAccount.domain.BikeAggregate;
 import com.eventsourcing.es.BaseEvent;
 import lombok.Builder;
