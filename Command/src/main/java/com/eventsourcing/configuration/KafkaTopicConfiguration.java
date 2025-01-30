@@ -18,7 +18,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class KafkaTopicConfiguration {
 
-    @Value(value = "${kafka.bootstrapServers:localhost:9093}")
+//    @Value(value = "${kafka.bootstrapServers:localhost:9092}")
+    @Value(value = "${kafka.val}")
     private String bootstrapServers;
 
     @Value(value = "${microservice.kafka.topics.bank-account-event-store:bank-account-event-store}")

@@ -4,7 +4,9 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.common.protocol.types.Field;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.mongo.MongoProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -27,11 +29,30 @@ public class MongoConfiguration {
 //        final var indexInfo = mongoTemplate.indexOps(BankAccountDocument.class).getIndexInfo();
 //        log.info("MongoDB connected, bankAccounts aggregateId index created: {}", indexInfo);
 //    }
+//@Value(value = "${SPRING_DATA_MONGODB_URI:mongodb://admin:admin@localhost:27017/bikeState?authSource=admin}")
+//private String  deaulturi ;
+//
+//    @Value(value = "${SPRING_DATA_MONGODB_URI:mongodb://admin:admin@localhost:27017/bikeState?authSource=admin}")
+//    private String  uriprimary ;
+//    @Value(value = "${SPRING_DATA_MONGODB_URI_Event:mongodb://admin:admin@localhost:27017/EventStore?authSource=admin}")
+//    private String  urievent ;
+
+    @Value("${spring.data.mongodb.secondary.uri}")
+    private String uriEvent;
+
+    @Value("${spring.data.mongodb.primary.uri}")
+    private String defaultUri;
+
+
+
 
 
     @Bean
     public MongoTemplate mongoTemplate() {
-        return new MongoTemplate(new SimpleMongoClientDatabaseFactory("mongodb://admin:admin@localhost:27017/bikeState?authSource=admin"));
+        System.out.println("deaulturi: --------------------->"+defaultUri);
+        System.out.flush();
+        log.info("deaulturi: --------------------->"+defaultUri);
+        return new MongoTemplate(new SimpleMongoClientDatabaseFactory(defaultUri));
     }
     @Primary
     @Bean(name = "primaryMongoProperties")
@@ -49,16 +70,20 @@ public class MongoConfiguration {
     @Primary
     @Bean(name = "primaryMongoTemplate")
     public MongoTemplate primaryMongoTemplate(@Qualifier("primaryMongoProperties") MongoProperties mongoProperties) {
+
         MongoClient mongoClient = MongoClients.create(mongoProperties.getUri());
-        return new MongoTemplate(new SimpleMongoClientDatabaseFactory("mongodb://admin:admin@localhost:27017/bikeState?authSource=admin"));
+//        return new MongoTemplate(new SimpleMongoClientDatabaseFactory("mongodb://admin:admin@mongo:27017/bikeState?authSource=admin"));
+        return new MongoTemplate(new SimpleMongoClientDatabaseFactory(defaultUri));
 
 //        return new MongoTemplate(new SimpleMongoClientDatabaseFactory(mongoClient, mongoProperties.getDatabase()));
     }
 
     @Bean(name = "secondaryMongoTemplate")
     public MongoTemplate secondaryMongoTemplate(@Qualifier("secondaryMongoProperties") MongoProperties mongoProperties) {
+        System.out.println("urievent: --------------------->"+uriEvent);
         MongoClient mongoClient = MongoClients.create(mongoProperties.getUri());
-        return new MongoTemplate(new SimpleMongoClientDatabaseFactory("mongodb://admin:admin@localhost:27017/EventStore?authSource=admin"));
+//        return new MongoTemplate(new SimpleMongoClientDatabaseFactory("mongodb://admin:admin@mongo:27017/EventStore?authSource=admin"));
+        return new MongoTemplate(new SimpleMongoClientDatabaseFactory(uriEvent));
 
 //        return new MongoTemplate(new SimpleMongoClientDatabaseFactory(mongoClient, mongoProperties.getDatabase()));
     }

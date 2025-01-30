@@ -17,12 +17,14 @@ import java.util.Map;
 @Configuration
 @RequiredArgsConstructor
 public class KafkaProducerConfig {
-    @Value(value = "${kafka.bootstrapServers:localhost:9093}")
+//    @Value(value = "${kafka.bootstrapServers:localhost:9092}")
+    @Value(value = "${kafka.val}")
     private String bootstrapServers;
 
     private final KafkaConfigProperties kafkaConfigProperties;
 
     private Map<String, Object> senderProps() {
+        System.out.println("bootstrapServers: " + bootstrapServers);
         Map<String, Object> producerProps = new HashMap<>();
         producerProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         producerProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);

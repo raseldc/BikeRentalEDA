@@ -44,7 +44,14 @@ public class EventStore implements EventStoreDB {
         final List<Event> aggregateEvents = new ArrayList<>(aggregate.getChanges());
         eventBus.publish(aggregateEvents);
 
-        mongoService.getSecondaryMongoTemplate().save(convertEventToEventMongo(aggregate.getChanges().get(0)));
+        System.out.println("aggregateEvents: " + aggregateEvents);
+        try {
+            mongoService.getPrimaryMongoTemplate().save(convertEventToEventMongo(aggregate.getChanges().get(0)));
+        }
+        catch (Exception ex)
+        {
+            log.error("Error saving to mongo: {}", ex);
+        }
 
         log.info("(save) saved aggregate: {}", aggregate);
     }

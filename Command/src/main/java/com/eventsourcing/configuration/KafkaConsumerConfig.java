@@ -23,7 +23,9 @@ import java.util.Map;
 @EnableKafka
 public class KafkaConsumerConfig {
 
-    @Value(value = "${kafka.bootstrapServers:localhost:9093}")
+//    @Value(value = "${kafka.bootstrapServers:localhost:9092}")
+    @Value(value = "${kafka.val}")
+
     private String bootstrapServers;
 
     private final KafkaConfigProperties kafkaConfigProperties;
