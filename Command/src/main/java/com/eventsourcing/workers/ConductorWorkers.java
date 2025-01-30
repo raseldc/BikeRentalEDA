@@ -26,16 +26,17 @@ public class ConductorWorkers {
     @Autowired
     MongoService mongoService;
     @WorkerTask(value = "state_bd_update", threadCount = 3, pollingInterval = 300)
-    public void bikeStatusUpdate(String bikeId, RentalStatus status) {
+    public void bikeStatusUpdate(RentBikeRequestDTO rentBikeRequestDTO) {
 
 
-        final var documentOptional = mongoService.getPrimaryMongoTemplate().find(query(where("bikeId").is(bikeId)), BikeDocumentState.class).stream().findFirst();
+        final var documentOptional = mongoService.getPrimaryMongoTemplate().find(query(where("bikeId").is(rentBikeRequestDTO.bikeId())), BikeDocumentState.class).stream().findFirst();
 
         if (documentOptional.isEmpty())
             return;
 
         final var document = documentOptional.get();
-        document.setStatus(status);
+        var stautus = RentalStatus.valueOf(rentBikeRequestDTO.status());
+        document.setStatus(stautus);
         mongoService.getPrimaryMongoTemplate().save(document);
 
 

@@ -1,0 +1,9 @@
+### Create a new bike
+POST http://localhost:8006/api/bike
+Content-Type: application/json
+
+{
+  "bikeId": "heroNow",
+  "bikeType": "Mountain",
+  "location": "Central Park"
+}
