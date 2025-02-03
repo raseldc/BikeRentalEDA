@@ -21,7 +21,7 @@ services:
           cpus: "1.0"
         reservations:
           memory: 512M
-
+    networks: [ "microservices" ]
 
   zookeeper:
     image: 'bitnami/zookeeper:3.8.0'
@@ -39,7 +39,7 @@ services:
           cpus: "2.0"
         reservations:
           memory: 256M
-
+    networks: [ "microservices" ]
 
 
 
@@ -64,7 +64,7 @@ services:
           cpus: "2.0"
         reservations:
           memory: 1G
-
+    networks: [ "microservices" ]
 
 
   mongodb_state:
@@ -79,7 +79,7 @@ services:
       - ./mongodb_data_container:/data/db
     ports:
       - "27017:27017"
-
+    networks: [ "microservices" ]
 
 
   mongodb_event_mic:
@@ -101,3 +101,7 @@ services:
             cpus: "1.0"
           reservations:
             memory: 512M
+      networks: [ "microservices" ]
+networks:
+  microservices:
+    name: microservices
