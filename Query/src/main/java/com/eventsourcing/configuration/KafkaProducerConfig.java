@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,13 +36,24 @@ public class KafkaProducerConfig {
         return producerProps;
     }
 
+
+
     @Bean
     public ProducerFactory<String, byte[]> producerFactory() {
         return new DefaultKafkaProducerFactory<>(senderProps());
     }
+//    @Bean(name = "producerFactoryStr")
+//    public ProducerFactory<String, String> producerFactoryStr() {
+//        return new DefaultKafkaProducerFactory<>(senderProps());
+//    }
 
     @Bean
     public KafkaTemplate<String, byte[]> kafkaTemplate(ProducerFactory<String, byte[]> producerFactory) {
         return new KafkaTemplate<>(producerFactory);
     }
+
+//    @Bean(name="KafkaTemplateStr")
+//    public KafkaTemplate<String, String> kafkaTemplateStr(@Qualifier("producerFactoryStr") ProducerFactory<String, String> producerFactory) {
+//        return new KafkaTemplate<>(producerFactory);
+//    }
 }

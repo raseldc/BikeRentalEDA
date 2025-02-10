@@ -1,44 +1,108 @@
 {
+  "createTime": 1738583978566,
+  "updateTime": 1738664553681,
   "name": "bike_rent_workflow",
-  "description": "Workflow to handle bike rent process",
-  "version": 1,
+  "description": "bike_rent_workflow",
+  "version": 3,
   "tasks": [
     {
-      "name": "start_saga",
-      "taskReferenceName": "start_saga",
-      "type": "SIMPLE"
+      "name": "state_bd_update",
+      "taskReferenceName": "state_bd_update_ref",
+      "inputParameters": {
+        "bikeId": "${workflow.input.bikeId}"
+      },
+      "type": "SIMPLE",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
     },
     {
-      "name": "update_database",
-      "taskReferenceName": "update_database",
-      "type": "SIMPLE"
+      "name": "call_kafka",
+      "taskReferenceName": "call_kafka",
+      "inputParameters": {
+        "kafka_request": {
+          "topic": "bank-account-event-store",
+          "value": "${state_bd_update_ref.output.bikeId}",
+          "bootStrapServers": "kafka:9092",
+          "headers": {
+            "x-Auth": "Auth-key"
+          },
+          "key": "123",
+          "keySerializer": "org.apache.kafka.common.serialization.IntegerSerializer"
+        }
+      },
+      "type": "KAFKA_PUBLISH",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
     },
     {
-      "name": "initiate_query_service",
-      "taskReferenceName": "initiate_query_service",
-      "type": "SIMPLE"
+      "name": "worker2",
+      "taskReferenceName": "worker2_ref",
+      "inputParameters": {},
+      "type": "SIMPLE",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
     },
     {
-      "name": "consume_query_event",
-      "taskReferenceName": "consume_query_event",
-      "type": "SIMPLE"
-    },
-    {
-      "name": "create_payment_event",
-      "taskReferenceName": "create_payment_event",
-      "type": "SIMPLE"
-    },
-    {
-      "name": "consume_payment_event",
-      "taskReferenceName": "consume_payment_event",
-      "type": "SIMPLE"
-    },
-    {
-      "name": "update_final_database",
-      "taskReferenceName": "update_final_database",
-      "type": "SIMPLE"
+      "name": "kafka_consumer_task",
+      "taskReferenceName": "kafka_consumer_ref",
+      "inputParameters": {
+        "bootstrapServers": "kafka:9092",
+        "groupId": "es_microservice",
+        "topic": "SagaTopic"
+      },
+      "type": "KAFKA",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
     }
   ],
+  "inputParameters": [
+    "bikeId"
+  ],
   "outputParameters": {},
-  "schemaVersion": 2
+  "failureWorkflow": "",
+  "schemaVersion": 2,
+  "restartable": true,
+  "workflowStatusListenerEnabled": false,
+  "ownerEmail": "shamiulislam045@gmail.com",
+  "timeoutPolicy": "ALERT_ONLY",
+  "timeoutSeconds": 0,
+  "variables": {},
+  "inputTemplate": {},
+  "enforceSchema": true
 }

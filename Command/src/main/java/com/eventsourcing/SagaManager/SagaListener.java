@@ -38,7 +38,7 @@ public class SagaListener implements Projection {
 
     @Autowired
     MongoService mongoService;
-    @KafkaListener(topics = "SagaTopic", groupId = "es_microservice")
+//    @KafkaListener(topics = "SagaTopic", groupId = "es_microservice")
     public void bankAccountMongoProjectionListener(@Payload byte[] data, ConsumerRecordMetadata meta, Acknowledgment ack) {
         log.info("(BankAccountMongoProjection) topic: {}, offset: {}, partition: {}, timestamp: {}, data: {}", meta.topic(), meta.offset(), meta.partition(), meta.timestamp(), new String(data));
 

@@ -12,21 +12,26 @@ import com.eventsourcing.bankAccount.repository.BikeMongoRepository;
 import com.eventsourcing.configuration.MongoService;
 import com.eventsourcing.es.*;
 import com.eventsourcing.mappers.BankAccountMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.sleuth.annotation.NewSpan;
 import org.springframework.cloud.sleuth.annotation.SpanTag;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.listener.adapter.ConsumerRecordMetadata;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -46,20 +51,67 @@ public class BankAccountMongoProjection implements Projection {
     @Autowired
     MongoService mongoService;
 
+    @Autowired
+    private final EventBus eventBus;
+
+
+//    @KafkaListener(topics = {"${microservice.kafka.topics.bank-account-event-store}"},
+//            groupId = "${microservice.kafka.groupId}",
+//            concurrency = "${microservice.kafka.default-concurrency}")
+//    public void bankAccountMongoProjectionListenerString(String data, ConsumerRecordMetadata meta, Acknowledgment ack) {
+//        System.out.println("Data->>>>>>"+data);
+//        eventBus.publishSagaTest(data);
+//        log.info("(BankAccountMongoProjection) topic: {}, offset: {}, partition: {}, timestamp: {}, data: {}", meta.topic(), meta.offset(), meta.partition(), meta.timestamp(), new String(data));
+//
+//
+//    }
+
     @KafkaListener(topics = {"${microservice.kafka.topics.bank-account-event-store}"},
             groupId = "${microservice.kafka.groupId}",
             concurrency = "${microservice.kafka.default-concurrency}")
-    public void bankAccountMongoProjectionListener(@Payload byte[] data, ConsumerRecordMetadata meta, Acknowledgment ack) {
+    public void bankAccountMongoProjectionListener(@Payload String data, ConsumerRecordMetadata meta, Acknowledgment ack) throws IOException {
         log.info("(BankAccountMongoProjection) topic: {}, offset: {}, partition: {}, timestamp: {}, data: {}", meta.topic(), meta.offset(), meta.partition(), meta.timestamp(), new String(data));
-
+      //  ObjectMapper objectMapper = new ObjectMapper();
+      //  String actualJsonString = objectMapper.readValue(data, String.class);
         try {
-            final Event[] events = SerializerUtils.deserializeEventsFromJsonBytes(data);
-            this.processEvents(Arrays.stream(events).toList());
+            data = data.trim();
+            if(data.charAt(0)=='"')
+            {
+                data = data.substring(1,data.length());
+            }
+            if(data.charAt(data.length()-1)=='"')
+            {
+                data = data.substring(0,data.length()-1);
+            }
+            String bikeId = data.split(";")[0];
+            String aggregateId = data.split(";")[1];
+            String eventType = data.split(";")[2];
+            Event e = new Event();
+            e.setAggregateId(aggregateId);
+            e.setEventType(eventType);
+
+
+            final var aggregate = new BikeAggregate(aggregateId);
+            aggregate.rentBikeStatusPendingSucessfulToSaga(bikeId, "", "", "", "");
+            aggregate.getChanges().get(0).setEventType(eventType);
+            aggregate.getChanges().toArray();
+
+
+            try {
+//                final Event[] events = (Event[]) aggregate.getChanges().toArray();//SerializerUtils.deserializeEventsFromJsonBytes(decodedBytes);
+//                this.processEvents(Arrays.stream(events).toList());
+                this.processEvents(aggregate.getChanges());
+                ack.acknowledge();
+                log.info("ack events: {}");
+            } catch (Exception ex) {
+                ack.acknowledge();
+//            ack.nack(100);
+                log.error("(BankAccountMongoProjection) topic: {}, offset: {}, partition: {}, timestamp: {}", meta.topic(), meta.offset(), meta.partition(), meta.timestamp(), ex);
+            }
+        }
+        catch (Exception ex)
+        {
             ack.acknowledge();
-            log.info("ack events: {}", Arrays.toString(events));
-        } catch (Exception ex) {
-            ack.nack(100);
-            log.error("(BankAccountMongoProjection) topic: {}, offset: {}, partition: {}, timestamp: {}", meta.topic(), meta.offset(), meta.partition(), meta.timestamp(), ex);
         }
     }
 

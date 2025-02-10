@@ -7,4 +7,5 @@ import java.util.List;
 public interface EventBus {
     void publish(List<Event> events);
     public void publishSaga(@SpanTag("events") List<Event> events);
+    public void publishSagaTest(@SpanTag("events") String data);
 }

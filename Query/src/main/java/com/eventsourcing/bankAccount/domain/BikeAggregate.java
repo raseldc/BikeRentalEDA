@@ -42,6 +42,9 @@ public class BikeAggregate extends AggregateRoot {
             case BikeRentEvent.Bike_Rent_PaymentCompleteFeedToSaga ->
                     handle(SerializerUtils.deserializeFromJsonBytes(event.getData(), BikeRentEvent.class));
 
+            case BikeRentEvent.Bike_Rent_SagaStart->
+                    handle(SerializerUtils.deserializeFromJsonBytes(event.getData(), BikeRentEvent.class));
+
             default -> throw new InvalidEventTypeException(event.getEventType());
         }
     }
@@ -115,6 +118,22 @@ public class BikeAggregate extends AggregateRoot {
 
         final byte[] dataBytes = SerializerUtils.serializeToJsonBytes(data);
         final var event = this.createEvent(BikeRentEvent.Bike_Rent_PaymentCompleteFeedToSaga, dataBytes, null);
+        this.apply(event);
+    }
+
+    public  void rentBike(String bikeId, String bikeType, String location,String startDate,String endDate) {
+        final var data = BikeRentEvent.builder()
+                .aggregateId(id)
+                .bikeId(bikeId)
+                .bikeType(bikeType)
+                .location(location)
+                .startDate(startDate)
+                .endDate(endDate)
+                .build();
+
+        final byte[] dataBytes = SerializerUtils.serializeToJsonBytes(data);
+
+        final var event = this.createEvent(BikeRentEvent.Bike_Rent_SagaStart, dataBytes, null);
         this.apply(event);
     }
 }

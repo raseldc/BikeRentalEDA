@@ -2,7 +2,6 @@ version: "3.9"
 
 services:
 
-
   zookeeper:
     image: 'bitnami/zookeeper:3.8.0'
     ports:
@@ -57,10 +56,6 @@ services:
     ports:
       - "27017:27017"
     networks: [ "microservices" ]
-
-
-
-
 
 networks:
   microservices:

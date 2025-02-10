@@ -102,6 +102,7 @@ public  void rentBike(String bikeId, String bikeType, String location,String sta
                 .build();
 
         final byte[] dataBytes = SerializerUtils.serializeToJsonBytes(data);
+
         final var event = this.createEvent(BikeRentEvent.Bike_Rent_SagaStart, dataBytes, null);
         this.apply(event);
     }

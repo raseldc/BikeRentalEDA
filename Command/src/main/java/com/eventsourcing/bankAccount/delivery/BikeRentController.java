@@ -1,11 +1,14 @@
 package com.eventsourcing.bankAccount.delivery;
 
 import com.eventsourcing.bankAccount.commands.BikeCommandService;
-import com.eventsourcing.bankAccount.commands.CreateBikeCommand;
+
 import com.eventsourcing.bankAccount.commands.RentBikeCommand;
 import com.eventsourcing.bankAccount.dto.RentBikeRequestDTO;
-import com.eventsourcing.es.RentalStatus;
+
+import com.eventsourcing.service.WorkflowService;
 import com.netflix.conductor.common.metadata.workflow.StartWorkflowRequest;
+
+
 import io.orkes.conductor.client.WorkflowClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,8 +46,17 @@ public class BikeRentController {
 //        }
 
 //
+
+
+    private final WorkflowService workflowService;
     @PostMapping
     public ResponseEntity<String> rentBikeWorkFlow(@Valid @RequestBody RentBikeRequestDTO dto) {
+
+//        BookingRequest bookingRequest = new BookingRequest();
+//        bookingRequest.setBookingRequestId("1233");
+//        workflowService.startRideBookingWorkflow(bookingRequest);
+//        return ResponseEntity.status(HttpStatus.CREATED).body("OK");
+//
         final var aggregateID = UUID.randomUUID().toString();
 
         StartWorkflowRequest request = new StartWorkflowRequest();
@@ -53,11 +65,11 @@ public class BikeRentController {
         request.setCorrelationId(aggregateID);
 
         Map<String, Object> inputData = new HashMap<>();
-        inputData.put("aggregateID", aggregateID);
+//        inputData.put("aggregateID", aggregateID);
         inputData.put("bikeId", dto.bikeId());
-        inputData.put("bikeType", dto.bikeType());
-        inputData.put("location", dto.location());
-        inputData.put("status", RentalStatus.REQUESTED.toString());
+//        inputData.put("bikeType", dto.bikeType());
+//        inputData.put("location", dto.location());
+//        inputData.put("status", RentalStatus.REQUESTED.toString());
         request.setInput(inputData);
 
 
@@ -69,7 +81,10 @@ public class BikeRentController {
             request.setTaskToDomain(taskToDomain);
         }
 
-        workflowClient.startWorkflow(request);
+        String workflowId = "";
+        workflowId =    workflowClient.startWorkflow(request);
+
+        log.info("Workflow id: {}", workflowId);
 
         log.info("Started bike rent workflow with id: {}", aggregateID);
         return ResponseEntity.status(HttpStatus.CREATED).body(aggregateID);

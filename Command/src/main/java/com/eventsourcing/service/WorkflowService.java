@@ -21,4 +21,40 @@ public class WorkflowService {
     private final Environment environment;
     private final String TASK_DOMAIN_PROPERTY = "conductor.worker.all.domain";
 
+    public Map<String, Object> startRideBookingWorkflow(BookingRequest bookingRequest) {
+        UUID uuid = UUID.randomUUID();
+        String bookingRequestId = uuid.toString();
+        bookingRequest.setBookingRequestId(bookingRequestId);
+
+        StartWorkflowRequest request = new StartWorkflowRequest();
+        request.setName("cab_service_saga_booking_wf");
+        request.setVersion(1);
+        request.setCorrelationId(bookingRequestId);
+
+        String domain = environment.getProperty(TASK_DOMAIN_PROPERTY, String.class, "");
+
+        if (!domain.isEmpty()) {
+            Map<String, String> taskToDomain = new HashMap<>();
+            taskToDomain.put("*", domain);
+            request.setTaskToDomain(taskToDomain);
+        }
+
+        Map<String, Object> inputData = new HashMap<>();
+        inputData.put("riderId", bookingRequest.getRiderId());
+        inputData.put("dropOffLocation", bookingRequest.getDropOffLocation());
+        inputData.put("pickUpLocation", bookingRequest.getPickUpLocation());
+        request.setInput(inputData);
+
+        String workflowId = "";
+        try {
+            workflowId = workflowClient.startWorkflow(request);
+            log.info("Workflow id: {}", workflowId);
+        } catch (Exception ex) {
+            ex.printStackTrace(System.out);
+            return Map.of("error", "Booking creation failure", "detail", ex.toString());
+        }
+
+        return Map.of("workflowId", workflowId);
+    }
+
 }
